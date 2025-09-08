@@ -26,6 +26,11 @@ const foodItemSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    foodPartner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "foodPartner", 
+      required: true,
+    },
   },
   { timestamps: true }
 );
