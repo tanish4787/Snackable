@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}

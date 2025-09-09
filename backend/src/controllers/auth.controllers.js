@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 
 export const registerUser = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const {username, email, password } = req.body;
     if (!username || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -102,8 +102,8 @@ export const logoutUser = (req, res) => {
 
 export const registerFoodPartner = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
-    if (!username || !email || !password) {
+    const { RestaurantName, email, password } = req.body;
+    if (!RestaurantName || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -115,7 +115,7 @@ export const registerFoodPartner = async (req, res) => {
     const hashedpass = await bcrypt.hash(password, 10);
 
     const newPartner = await foodPartner.create({
-      username,
+      RestaurantName,
       email,
       password: hashedpass,
     });
@@ -134,7 +134,7 @@ export const registerFoodPartner = async (req, res) => {
         foodPartner: {
           id: newPartner._id,
           email: newPartner.email,
-          name: newPartner.username,
+          RestaurantName: newPartner.RestaurantName,
         },
       });
   } catch (error) {
@@ -174,7 +174,7 @@ export const loginFoodPartner = async (req, res) => {
         foodPartner: {
           id: partner._id,
           email: partner.email,
-          name: partner.name,
+          ame: partner.RestaurantName,
         },
       });
   } catch (error) {
