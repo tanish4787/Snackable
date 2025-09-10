@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import { themeVars } from "../themeVars";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const RegisterUser = () => {
   const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const theme = isDark ? themeVars.dark : themeVars.light;
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,7 +19,10 @@ const RegisterUser = () => {
       username,
       email,
       password,
+    },{
+      withCredentials: true
     });
+    navigate("/");
   };
 
   return (

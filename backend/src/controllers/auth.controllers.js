@@ -102,8 +102,8 @@ export const logoutUser = (req, res) => {
 
 export const registerFoodPartner = async (req, res) => {
   try {
-    const { RestaurantName, email, password } = req.body;
-    if (!RestaurantName || !email || !password) {
+    const { restaurantName, email, password } = req.body;
+    if (!restaurantName || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -115,7 +115,7 @@ export const registerFoodPartner = async (req, res) => {
     const hashedpass = await bcrypt.hash(password, 10);
 
     const newPartner = await foodPartner.create({
-      RestaurantName,
+      restaurantName,
       email,
       password: hashedpass,
     });
@@ -134,7 +134,7 @@ export const registerFoodPartner = async (req, res) => {
         foodPartner: {
           id: newPartner._id,
           email: newPartner.email,
-          RestaurantName: newPartner.RestaurantName,
+          restaurantName: newPartner.restaurantName,
         },
       });
   } catch (error) {
@@ -155,7 +155,7 @@ export const loginFoodPartner = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, partner.password);
+    const isPasswordValid =  await bcrypt.compare(password, partner.password);
     if (!isPasswordValid) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
@@ -174,7 +174,7 @@ export const loginFoodPartner = async (req, res) => {
         foodPartner: {
           id: partner._id,
           email: partner.email,
-          ame: partner.RestaurantName,
+          restaurantName: partner.restaurantName,
         },
       });
   } catch (error) {

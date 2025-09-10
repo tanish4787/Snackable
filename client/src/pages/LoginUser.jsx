@@ -1,11 +1,32 @@
-import React from "react";
+import React, { useState } from "react";
 import { themeVars } from "../themeVars";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const LoginUser = () => {
   const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const theme = isDark ? themeVars.dark : themeVars.light;
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(
+        "http://localhost:3000/api/auth/user/login",
+        {email,password},
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      navigate("/");
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
+  };
   return (
     <div
       className={`min-h-screen flex items-center justify-center ${theme.primary} transition-all duration-700 px-2`}
@@ -16,15 +37,23 @@ const LoginUser = () => {
         <h2 className={`text-3xl font-bold mb-6 text-center ${theme.accent}`}>
           User Login
         </h2>
-        <form className="space-y-5">
+        <form className="space-y-5" onSubmit={handleSubmit}>
           <input
             className={`w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all duration-300 ${theme.input} ${theme.text} ${theme.placeholder}`}
             placeholder="Email"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+            }}
           />
           <input
             type="password"
             className={`w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400 transition-all duration-300 ${theme.input} ${theme.text} ${theme.placeholder}`}
             placeholder="Password"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+            }}
           />
           <button
             type="submit"
