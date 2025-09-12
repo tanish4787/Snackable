@@ -28,8 +28,12 @@ const foodItemSchema = new mongoose.Schema(
     },
     foodPartner: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "foodPartner", 
+      ref: "foodPartner",
       required: true,
+    },
+    storeUrl: {
+      type: String,
+      default: "#",
     },
   },
   { timestamps: true }
