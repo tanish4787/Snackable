@@ -3,7 +3,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { themeVars } from "../themeVars";
 
-const Home = () => {
+const Reels = () => {
   const [videos, setVideos] = useState([]);
   const containerRef = useRef(null);
 
@@ -52,7 +52,10 @@ const Home = () => {
       <div className="w-full h-screen flex justify-center items-center">
         <div
           ref={containerRef}
-          className="snap-y snap-mandatory h-full w-full max-w-[420px] bg-black/80 rounded-3xl shadow-2xl overflow-y-scroll scrollbar-hide relative border border-gray-700"
+          className="snap-y snap-mandatory h-full w-full
+            max-w-full rounded-none border-none
+            sm:max-w-[420px] sm:rounded-3xl sm:border sm:border-gray-700
+            bg-black/80 shadow-2xl overflow-y-scroll scrollbar-hide relative"
         >
           {videos.length > 0 ? (
             videos.map((video, idx) => (
@@ -64,6 +67,11 @@ const Home = () => {
                 <video
                   src={video.url}
                   className="absolute top-0 left-0 w-full h-full object-cover"
+                  style={{
+                    borderRadius: "0",
+                    maxWidth: "100vw",
+                    maxHeight: "100vh",
+                  }}
                   loop
                   playsInline
                   muted // required for autoplay
@@ -107,4 +115,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Reels;

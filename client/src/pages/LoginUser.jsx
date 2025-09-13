@@ -22,7 +22,7 @@ const LoginUser = () => {
           headers: { "Content-Type": "application/json" },
         }
       );
-      navigate("/");
+      navigate("/reels");
     } catch (error) {
       console.error("Login failed:", error);
     }
