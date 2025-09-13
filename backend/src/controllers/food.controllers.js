@@ -1,6 +1,8 @@
 import fs from "fs";
 import FoodItem from "../models/foodItem.model.js";
+import FoodPartner from "../models/foodPartner.model.js";
 import { uploadFileOnCloudinary } from "../services/storage1.service.js";
+import mongoose from "mongoose";
 
 export const createFood = async (req, res) => {
   try {
@@ -61,12 +63,36 @@ export const getAllFoodItems = async (req, res) => {
     const videos = foodItems.map((item) => ({
       url: item.videoUrl,
       description: `${item.name} - ${item.description}`,
-      store: item.foodPartner?.storeUrl || "#",
+      store: `/food/food-partner/${item.foodPartner?._id}`,
     }));
 
     return res.status(200).json({ videos });
   } catch (error) {
     console.error("Error fetching food items:", error);
     return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getFoodPartnerFoodById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid partner ID" });
+    }
+
+    const foodPartner = await FoodPartner.findById(id);
+
+    if (!foodPartner) {
+      return res.status(404).json({ message: "Food Partner not found" });
+    }
+
+    return res.status(200).json({
+      message: "Food Partner fetched successfully",
+      foodPartner,
+    });
+  } catch (error) {
+    console.error("Error fetching food partner:", error);
+    return res.status(500).json({ message: error.message });
   }
 };

@@ -17,6 +17,10 @@ export const verifyFoodPartner = async (req, res, next) => {
 
     req.foodPartner = partner;
     next();
+
+    return res
+      .status(200)
+      .json({ message: "Food Partner fetched successfully", partner });
   } catch (error) {
     return res.status(401).json({ message: "Invalid token" });
   }
