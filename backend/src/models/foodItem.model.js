@@ -35,6 +35,14 @@ const foodItemSchema = new mongoose.Schema(
       type: String,
       default: "#",
     },
+    likeCount: {
+      type: Number,
+      default: 0,
+    },
+    savedCount: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

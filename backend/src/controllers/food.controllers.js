@@ -1,5 +1,7 @@
 import fs from "fs";
 import FoodItem from "../models/foodItem.model.js";
+import Like from "../models/like.model.js";
+import Save from "../models/save.model.js";
 import FoodPartner from "../models/foodPartner.model.js";
 import { uploadFileOnCloudinary } from "../services/storage1.service.js";
 import mongoose from "mongoose";
@@ -64,6 +66,10 @@ export const getAllFoodItems = async (req, res) => {
       url: item.videoUrl,
       description: `${item.name} - ${item.description}`,
       store: `/food/food-partner/${item.foodPartner?._id}`,
+      likeCount: item.likeCount || 0,
+      savedCount: item.savedCount || 0,
+      price: item.price || "N/A",
+      category: item.category || "General",
     }));
 
     return res.status(200).json({ videos });
@@ -94,5 +100,71 @@ export const getFoodPartnerFoodById = async (req, res) => {
   } catch (error) {
     console.error("Error fetching food partner:", error);
     return res.status(500).json({ message: error.message });
+  }
+};
+
+export const likeFoodItem = async (req, res) => {
+  try {
+    const { foodItemId } = req.body;
+    const userId = req.user;
+
+    const isLiked = await Like.findOne({
+      foodItem: foodItemId,
+      user: userId,
+    });
+
+    if (isLiked) {
+      await Like.deleteOne({ foodItem: foodItemId, user: userId });
+      await FoodItem.findByIdAndUpdate(foodItemId, {
+        $inc: { likeCount: -1 },
+      });
+
+      return res
+        .status(200)
+        .json({ message: "Food item unliked successfully" });
+    }
+
+    const newLike = new Like({
+      foodItem: foodItemId,
+      user: userId,
+    });
+    await FoodItem.findByIdAndUpdate(foodItemId, {
+      $inc: { likeCount: 1 },
+    });
+
+    await newLike.save();
+
+    return res.status(201).json({ message: "Food item liked successfully" });
+  } catch (error) {
+    console.error("Error liking food item:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const saveFoodItem = async (req, res) => {
+  try {
+    const { foodItemId } = req.body;
+    const userId = req.user;
+
+    const isSaved = await Save.findOne({
+      foodItem: foodItemId,
+      user: userId,
+    });
+    if (isSaved) {
+      await Save.deleteOne({ foodItem: foodItemId, user: userId });
+      return res
+        .status(200)
+        .json({ message: "Food item unsaved successfully" });
+    }
+    const newSave = new Save({
+      foodItem: foodItemId,
+      user: userId,
+    });
+    await newSave.save();
+
+    return res.status(201).json({ message: "Food item saved successfully" });
+  } catch (error) {
+    console.error("Error saving food item:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };

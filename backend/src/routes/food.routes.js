@@ -3,6 +3,8 @@ import {
   createFood,
   getAllFoodItems,
   getFoodPartnerFoodById,
+  likeFoodItem,
+  saveFoodItem,
 } from "../controllers/food.controllers.js";
 import {
   verifyFoodPartner,
@@ -15,5 +17,7 @@ const router = express.Router();
 router.post("/", verifyFoodPartner, upload.single("video"), createFood);
 router.get("/", verifyUser, getAllFoodItems);
 router.get("/food-partner/:id", getFoodPartnerFoodById);
+router.post("/like", verifyUser, likeFoodItem);
+router.post("/save", verifyUser, saveFoodItem);
 
 export default router;
