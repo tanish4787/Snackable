@@ -11,11 +11,11 @@ const LoginPartner = () => {
   const [password, setPassword] = React.useState("");
   const navigate = useNavigate();
 
-   const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await axios.post(
-        "http://localhost:3000/api/auth/food-partner/login",
+        `${import.meta.env.VITE_LOCALHOST}/api/auth/food-partner/login`,
         {
           email,
           password,

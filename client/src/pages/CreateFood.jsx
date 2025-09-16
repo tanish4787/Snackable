@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { themeVars } from "../themeVars";
+import { useNavigate } from "react-router-dom";
 
 const CreateFood = () => {
   const [formData, setFormData] = useState({
@@ -25,6 +26,7 @@ const CreateFood = () => {
   const handleFileChange = (e) => {
     setVideo(e.target.files[0] || null);
   };
+  const navigate = useNavigate();
 
   // Submit form
   const handleSubmit = async (e) => {
@@ -41,13 +43,18 @@ const CreateFood = () => {
     try {
       setLoading(true);
       setMessage("");
-      const res = await axios.post("http://localhost:3000/api/food", data, {
-        withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await axios.post(
+        `${import.meta.env.VITE_LOCALHOST}/api/food`,
+        data,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
       setMessage(res.data.message || "Upload successful!");
       setFormData({ name: "", description: "", price: "", category: "" });
       setVideo(null);
+      navigate("/reels");
     } catch (err) {
       console.error("Upload error:", err);
       setMessage(err.response?.data?.message || "Upload failed. Try again.");

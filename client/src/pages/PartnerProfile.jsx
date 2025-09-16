@@ -11,7 +11,7 @@ const PartnerProfile = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:3000/api/food/food-partner/${id}`, {
+      .get(`${import.meta.env.VITE_LOCALHOST}/api/food/food-partner/${id}`, {
         withCredentials: true,
       })
       .then((res) => {
@@ -37,7 +37,7 @@ const PartnerProfile = () => {
           {profile?.restaurantName}
         </h2>
         <p className={`text-sm mb-2 ${theme.text}`}>
-          {profile?.storeAddr || "#"}
+          {profile?.storeAddr || "F#"}
         </p>
         <div className="flex gap-8 mb-4">
           <div className="flex flex-col items-center">

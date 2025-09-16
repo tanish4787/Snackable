@@ -15,8 +15,8 @@ const RegisterPartner = () => {
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
-     await axios.post(
-        "http://localhost:3000/api/auth/food-partner/register",
+      await axios.post(
+        `${import.meta.env.VITE_LOCALHOST}/api/auth/food-partner/register`,
         {
           restaurantName,
           email,

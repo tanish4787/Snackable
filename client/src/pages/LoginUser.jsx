@@ -15,8 +15,8 @@ const LoginUser = () => {
     e.preventDefault();
     try {
       await axios.post(
-        "http://localhost:3000/api/auth/user/login",
-        {email,password},
+        `${import.meta.env.VITE_LOCALHOST}/api/auth/user/login`,
+        { email, password },
         {
           withCredentials: true,
           headers: { "Content-Type": "application/json" },

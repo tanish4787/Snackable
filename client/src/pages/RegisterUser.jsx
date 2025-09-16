@@ -15,13 +15,17 @@ const RegisterUser = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    await axios.post("http://localhost:3000/api/auth/user/register", {
-      username,
-      email,
-      password,
-    },{
-      withCredentials: true
-    });
+    await axios.post(
+      `${import.meta.env.VITE_LOCALHOST}/api/auth/user/register`,
+      {
+        username,
+        email,
+        password,
+      },
+      {
+        withCredentials: true,
+      }
+    );
     navigate("/");
   };
 
