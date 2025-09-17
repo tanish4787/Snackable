@@ -32,7 +32,13 @@ export const registerUser = async (req, res) => {
     );
 
     res
-      .cookie("token", token)
+     .cookie("token", token, {
+  httpOnly: true,       // Protects from XSS
+  secure: true,         // Required on HTTPS (Render & Vercel use HTTPS)
+  sameSite: "none",     // Required for cross-origin cookies
+  path: "/",            // Default path
+  maxAge: 7 * 24 * 60 * 60 * 1000, // Optional: 7 days
+});
       .status(201)
       .json({
         message: "User registered successfully",
@@ -73,7 +79,13 @@ export const loginUser = async (req, res) => {
     );
 
     res
-      .cookie("token", token)
+     .cookie("token", token, {
+  httpOnly: true,       // Protects from XSS
+  secure: true,         // Required on HTTPS (Render & Vercel use HTTPS)
+  sameSite: "none",     // Required for cross-origin cookies
+  path: "/",            // Default path
+  maxAge: 7 * 24 * 60 * 60 * 1000, // Optional: 7 days
+});
       .status(201)
       .json({
         message: "User logged in successfully",
@@ -127,7 +139,13 @@ export const registerFoodPartner = async (req, res) => {
       process.env.JWT_SECRET
     );
     res
-      .cookie("token", token)
+     .cookie("token", token, {
+  httpOnly: true,       // Protects from XSS
+  secure: true,         // Required on HTTPS (Render & Vercel use HTTPS)
+  sameSite: "none",     // Required for cross-origin cookies
+  path: "/",            // Default path
+  maxAge: 7 * 24 * 60 * 60 * 1000, // Optional: 7 days
+});
       .status(201)
       .json({
         message: "Food partner registered successfully",
@@ -167,7 +185,13 @@ export const loginFoodPartner = async (req, res) => {
       process.env.JWT_SECRET
     );
     res
-      .cookie("token", token)
+     .cookie("token", token, {
+  httpOnly: true,       // Protects from XSS
+  secure: true,         // Required on HTTPS (Render & Vercel use HTTPS)
+  sameSite: "none",     // Required for cross-origin cookies
+  path: "/",            // Default path
+  maxAge: 7 * 24 * 60 * 60 * 1000, // Optional: 7 days
+});
       .status(201)
       .json({
         message: "Food partner logged in successfully",
