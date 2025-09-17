@@ -15,7 +15,7 @@ const LoginUser = () => {
     e.preventDefault();
     try {
       await axios.post(
-        `${import.meta.env.VITE_LOCALHOST}/api/auth/user/login`,
+        `${import.meta.env.VITE_LIVE}/api/auth/user/login`,
         { email, password },
         {
           withCredentials: true,

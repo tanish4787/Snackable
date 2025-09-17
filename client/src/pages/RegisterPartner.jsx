@@ -16,7 +16,7 @@ const RegisterPartner = () => {
     try {
       e.preventDefault();
       await axios.post(
-        `${import.meta.env.VITE_LOCALHOST}/api/auth/food-partner/register`,
+        `${import.meta.env.VITE_LIVE}/api/auth/food-partner/register`,
         {
           restaurantName,
           email,

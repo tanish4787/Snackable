@@ -16,7 +16,7 @@ const RegisterUser = () => {
     e.preventDefault();
 
     await axios.post(
-      `${import.meta.env.VITE_LOCALHOST}/api/auth/user/register`,
+      `${import.meta.env.VITE_LIVE}/api/auth/user/register`,
       {
         username,
         email,

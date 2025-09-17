@@ -15,7 +15,7 @@ const LoginPartner = () => {
     e.preventDefault();
     try {
       await axios.post(
-        `${import.meta.env.VITE_LOCALHOST}/api/auth/food-partner/login`,
+        `${import.meta.env.VITE_LIVE}/api/auth/food-partner/login`,
         {
           email,
           password,

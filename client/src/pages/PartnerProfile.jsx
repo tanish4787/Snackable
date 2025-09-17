@@ -11,7 +11,7 @@ const PartnerProfile = () => {
 
   useEffect(() => {
     axios
-      .get(`${import.meta.env.VITE_LOCALHOST}/api/food/food-partner/${id}`, {
+      .get(`${import.meta.env.VITE_LIVE}/api/food/food-partner/${id}`, {
         withCredentials: true,
       })
       .then((res) => {

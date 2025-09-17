@@ -44,7 +44,7 @@ const CreateFood = () => {
       setLoading(true);
       setMessage("");
       const res = await axios.post(
-        `${import.meta.env.VITE_LOCALHOST}/api/food`,
+        `${import.meta.env.VITE_LIVE}/api/food`,
         data,
         {
           withCredentials: true,

@@ -15,12 +15,9 @@ const Saved = () => {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_LOCALHOST}/api/food`,
-          {
-            withCredentials: true,
-          }
-        );
+        const res = await axios.get(`${import.meta.env.VITE_LIVE}/api/food`, {
+          withCredentials: true,
+        });
         setVideos(res.data.videos || []);
       } catch (err) {
         console.error("Error fetching videos:", err);
@@ -62,7 +59,7 @@ const Saved = () => {
     );
     try {
       await axios.post(
-        `${import.meta.env.VITE_LOCALHOST}/api/food/like`,
+        `${import.meta.env.VITE_LIVE}/api/food/like`,
         { foodItemId: id },
         { withCredentials: true }
       );
@@ -85,7 +82,7 @@ const Saved = () => {
     );
     try {
       await axios.post(
-        `${import.meta.env.VITE_LOCALHOST}/api/food/save`,
+        `${import.meta.env.VITE_LIVE}/api/food/save`,
         { foodItemId: id },
         { withCredentials: true }
       );

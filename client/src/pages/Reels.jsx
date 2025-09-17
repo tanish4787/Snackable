@@ -19,10 +19,9 @@ const Reels = () => {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_LOCALHOST}/api/food`,
-          { withCredentials: true }
-        );
+        const res = await axios.get(`${import.meta.env.VITE_LIVE}/api/food`, {
+          withCredentials: true,
+        });
         const normalized = (res.data.videos || []).map((v) => ({
           _id: v._id,
           url: v.url || v.videoUrl,
@@ -83,7 +82,7 @@ const Reels = () => {
 
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_LOCALHOST}/api/food/like`,
+        `${import.meta.env.VITE_LIVE}/api/food/like`,
         { foodItemId: id },
         { withCredentials: true }
       );
@@ -122,7 +121,7 @@ const Reels = () => {
 
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_LOCALHOST}/api/food/save`,
+        `${import.meta.env.VITE_LIVE}/api/food/save`,
         { foodItemId: id },
         { withCredentials: true }
       );
