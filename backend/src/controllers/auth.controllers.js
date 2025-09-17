@@ -38,8 +38,7 @@ export const registerUser = async (req, res) => {
   sameSite: "none",     // Required for cross-origin cookies
   path: "/",            // Default path
   maxAge: 7 * 24 * 60 * 60 * 1000, // Optional: 7 days
-});
-      .status(201)
+}).status(201)
       .json({
         message: "User registered successfully",
         user: {
@@ -85,7 +84,7 @@ export const loginUser = async (req, res) => {
   sameSite: "none",     // Required for cross-origin cookies
   path: "/",            // Default path
   maxAge: 7 * 24 * 60 * 60 * 1000, // Optional: 7 days
-});
+})
       .status(201)
       .json({
         message: "User logged in successfully",
@@ -145,7 +144,7 @@ export const registerFoodPartner = async (req, res) => {
   sameSite: "none",     // Required for cross-origin cookies
   path: "/",            // Default path
   maxAge: 7 * 24 * 60 * 60 * 1000, // Optional: 7 days
-});
+})
       .status(201)
       .json({
         message: "Food partner registered successfully",
@@ -191,7 +190,7 @@ export const loginFoodPartner = async (req, res) => {
   sameSite: "none",     // Required for cross-origin cookies
   path: "/",            // Default path
   maxAge: 7 * 24 * 60 * 60 * 1000, // Optional: 7 days
-});
+})
       .status(201)
       .json({
         message: "Food partner logged in successfully",
