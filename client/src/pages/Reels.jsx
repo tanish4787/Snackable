@@ -6,7 +6,11 @@ import { themeVars } from "../themeVars";
 
 const Reels = () => {
   const [videos, setVideos] = useState([]);
+  const [view, setView] = useState("all"); // all | saved
   const containerRef = useRef(null);
+
+  const lastTapRef = useRef(new Map());
+  const processingRef = useRef(new Set());
 
   const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const theme = isDark ? themeVars.dark : themeVars.light;
@@ -17,11 +21,20 @@ const Reels = () => {
       try {
         const res = await axios.get(
           `${import.meta.env.VITE_LOCALHOST}/api/food`,
-          {
-            withCredentials: true,
-          }
+          { withCredentials: true }
         );
-        setVideos(res.data.videos || []);
+        const normalized = (res.data.videos || []).map((v) => ({
+          _id: v._id,
+          url: v.url || v.videoUrl,
+          description: v.description || "",
+          store: v.store || v.storeUrl || null,
+          likeCount: Number(v.likeCount ?? v.likesCount ?? 0),
+          savedCount: Number(v.savedCount ?? v.saveCount ?? 0),
+          isLiked: Boolean(v.isLiked ?? false),
+          isSaved: Boolean(v.isSaved ?? false),
+          showHeart: false,
+        }));
+        setVideos(normalized);
       } catch (err) {
         console.error("Error fetching videos:", err);
       }
@@ -29,13 +42,15 @@ const Reels = () => {
     fetchVideos();
   }, []);
 
-  // Auto play/pause videos
+  // Autoplay when in view
   useEffect(() => {
     const handleScroll = () => {
       const vids = containerRef.current?.querySelectorAll("video") || [];
       vids.forEach((vid) => {
         const rect = vid.getBoundingClientRect();
-        if (rect.top >= 0 && rect.bottom <= window.innerHeight) {
+        const visible =
+          rect.top >= -50 && rect.bottom <= window.innerHeight + 50;
+        if (visible) {
           vid.play().catch(() => {});
         } else {
           vid.pause();
@@ -47,94 +62,148 @@ const Reels = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Double tap like
-  const handleDoubleTap = (id) => {
+  // Like handler
+  const handleLike = async (id) => {
+    if (processingRef.current.has(`like:${id}`)) return;
+    processingRef.current.add(`like:${id}`);
+
     setVideos((prev) =>
       prev.map((v) =>
         v._id === id
-          ? { ...v, likeCount: (v.likeCount ?? 0) + 1, showHeart: true }
+          ? {
+              ...v,
+              isLiked: !v.isLiked,
+              likeCount: !v.isLiked
+                ? (v.likeCount ?? 0) + 1
+                : Math.max((v.likeCount ?? 0) - 1, 0),
+            }
           : v
       )
+    );
+
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_LOCALHOST}/api/food/like`,
+        { foodItemId: id },
+        { withCredentials: true }
+      );
+      if (res.data && typeof res.data.likeCount !== "undefined") {
+        setVideos((prev) =>
+          prev.map((v) =>
+            v._id === id ? { ...v, likeCount: Number(res.data.likeCount) } : v
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Error liking food item:", err);
+    } finally {
+      setTimeout(() => processingRef.current.delete(`like:${id}`), 600);
+    }
+  };
+
+  // Save handler
+  const handleSave = async (id) => {
+    if (processingRef.current.has(`save:${id}`)) return;
+    processingRef.current.add(`save:${id}`);
+
+    setVideos((prev) =>
+      prev.map((v) =>
+        v._id === id
+          ? {
+              ...v,
+              isSaved: !v.isSaved,
+              savedCount: !v.isSaved
+                ? (v.savedCount ?? 0) + 1
+                : Math.max((v.savedCount ?? 0) - 1, 0),
+            }
+          : v
+      )
+    );
+
+    try {
+      const res = await axios.post(
+        `${import.meta.env.VITE_LOCALHOST}/api/food/save`,
+        { foodItemId: id },
+        { withCredentials: true }
+      );
+      if (res.data && typeof res.data.savedCount !== "undefined") {
+        setVideos((prev) =>
+          prev.map((v) =>
+            v._id === id ? { ...v, savedCount: Number(res.data.savedCount) } : v
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Error saving food item:", err);
+    } finally {
+      setTimeout(() => processingRef.current.delete(`save:${id}`), 600);
+    }
+  };
+
+  // Touch / double-tap like
+  const handlePointerTap = (id, e) => {
+    if (e.type === "touchstart" || e.pointerType === "touch") {
+      const last = lastTapRef.current.get(id) || 0;
+      const now = Date.now();
+      if (now - last < 300) {
+        setVideos((prev) =>
+          prev.map((v) => (v._id === id ? { ...v, showHeart: true } : v))
+        );
+        setTimeout(() => {
+          setVideos((prev) =>
+            prev.map((v) => (v._id === id ? { ...v, showHeart: false } : v))
+          );
+        }, 800);
+        handleLike(id);
+        lastTapRef.current.delete(id);
+      } else {
+        lastTapRef.current.set(id, now);
+        setTimeout(() => {
+          if (Date.now() - (lastTapRef.current.get(id) || 0) >= 300)
+            lastTapRef.current.delete(id);
+        }, 350);
+      }
+    }
+  };
+
+  const handleDoubleClickDesktop = (id) => {
+    setVideos((prev) =>
+      prev.map((v) => (v._id === id ? { ...v, showHeart: true } : v))
     );
     setTimeout(() => {
       setVideos((prev) =>
         prev.map((v) => (v._id === id ? { ...v, showHeart: false } : v))
       );
     }, 800);
+    handleLike(id);
   };
 
-  // --- inside Reels.jsx ---
-  const handleLike = async (id) => {
-    try {
-      // Optimistic UI update
-      setVideos((prev) =>
-        prev.map((v) =>
-          v._id === id
-            ? {
-                ...v,
-                isLiked: !v.isLiked,
-                likeCount: v.isLiked ? v.likeCount - 1 : v.likeCount + 1,
-              }
-            : v
-        )
-      );
-
-      // API call
-      await axios.post(
-        `${import.meta.env.VITE_LOCALHOST}/api/food/like`,
-        { foodItemId: id },
-        { withCredentials: true }
-      );
-    } catch (err) {
-      console.error("Error liking food item:", err);
-    }
-  };
-
-  const handleSave = async (id) => {
-    try {
-      // Optimistic UI update
-      setVideos((prev) =>
-        prev.map((v) =>
-          v._id === id
-            ? {
-                ...v,
-                isSaved: !v.isSaved,
-                savesCount: v.isSaved ? v.savesCount - 1 : v.savesCount + 1,
-              }
-            : v
-        )
-      );
-
-      await axios.post(
-        `${import.meta.env.VITE_LOCALHOST}/api/food/save`,
-        { foodItemId: id },
-        { withCredentials: true }
-      );
-    } catch (err) {
-      console.error("Error saving food item:", err);
-    }
-  };
+  // Filtered view
+  const displayedVideos =
+    view === "saved" ? videos.filter((v) => v.isSaved) : videos;
 
   return (
     <div className="min-h-screen w-full flex justify-center items-center bg-gradient-to-br from-orange-400 via-pink-500 to-yellow-400 dark:from-gray-900 dark:via-gray-800 dark:to-black transition-all duration-700">
       <div className="w-full h-screen flex justify-center items-center">
-        {/* Phone-like container */}
         <div
           ref={containerRef}
-          className="snap-y snap-mandatory h-full w-full
-            sm:max-w-[420px] sm:h-full sm:rounded-3xl sm:border sm:border-gray-700
-            bg-black/90 shadow-2xl overflow-y-scroll scrollbar-hide relative"
+          className="snap-y snap-mandatory h-full w-full sm:max-w-[420px] sm:h-full sm:rounded-3xl sm:border sm:border-gray-700 bg-black/90 shadow-2xl overflow-y-scroll scrollbar-hide relative"
         >
-          {videos.length > 0 ? (
-            videos.map((video,) => (
+          {displayedVideos.length > 0 ? (
+            displayedVideos.map((video) => (
               <div
                 key={video._id}
-                className="snap-center relative w-full h-full flex justify-center items-center"
-                onDoubleClick={() => handleDoubleTap(video._id)}
+                className="snap-center relative w-full h-screen sm:h-full flex justify-center items-center"
+                onTouchStart={(e) => handlePointerTap(video._id, e)}
+                onPointerDown={(e) => {
+                  if ((e.pointerType || "").toLowerCase() === "touch")
+                    handlePointerTap(video._id, e);
+                }}
+                onDoubleClick={() => handleDoubleClickDesktop(video._id)}
               >
-                {/* Background video */}
+                {/* Video */}
                 <video
-                  src={video.url || video.videoUrl}
+                  src={video.url}
                   className="absolute top-0 left-0 w-full h-full object-cover sm:rounded-3xl"
                   loop
                   playsInline
@@ -142,69 +211,73 @@ const Reels = () => {
                   autoPlay
                 />
 
-                {/* Gradient overlay */}
+                {/* Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent sm:rounded-3xl" />
 
-                {/* Big double-tap heart */}
+                {/* Heart animation */}
                 {video.showHeart && (
                   <Heart
-                    className="absolute text-white/90 drop-shadow-lg animate-ping-once"
+                    className="absolute text-white/95 drop-shadow-lg animate-ping-once z-30"
                     size={120}
                   />
                 )}
 
                 {/* Action buttons */}
-                <div className="absolute right-5 bottom-28 flex flex-col items-center gap-6 z-20">
-                  {/* Like */}
+                <div className="absolute right-4 bottom-28 flex flex-col items-center gap-5 z-20">
                   <button
                     onClick={() => handleLike(video._id)}
-                    className="flex flex-col items-center transition-transform hover:scale-110 active:scale-95 bg-white/80 dark:bg-gray-800/80 rounded-full p-3 shadow-lg"
+                    className="flex flex-col items-center bg-white/90 dark:bg-gray-800/80 rounded-full p-3 shadow-lg"
                   >
-                    <Heart size={28} className="text-red-500" />
-                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 mt-1">
-                      {video.likeCount ?? 0}
+                    <Heart
+                      size={28}
+                      className={
+                        video.isLiked
+                          ? "text-red-600 fill-red-600"
+                          : "text-red-500"
+                      }
+                    />
+                    <span className="text-xs font-semibold text-gray-800 dark:text-gray-200 mt-1">
+                      {Number(video.likeCount ?? 0)}
                     </span>
                   </button>
 
-                  {/* Save */}
                   <button
                     onClick={() => handleSave(video._id)}
-                    className="flex flex-col items-center transition-transform hover:scale-110 active:scale-95 bg-white/80 dark:bg-gray-800/80 rounded-full p-3 shadow-lg"
+                    className="flex flex-col items-center bg-white/90 dark:bg-gray-800/80 rounded-full p-3 shadow-lg"
                   >
-                    <Bookmark size={28} className="text-yellow-500" />
-                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 mt-1">
-                      {video.savedCount ?? 0}
+                    <Bookmark
+                      size={28}
+                      className={
+                        video.isSaved
+                          ? "text-yellow-500 fill-yellow-500"
+                          : "text-yellow-500"
+                      }
+                    />
+                    <span className="text-xs font-semibold text-gray-800 dark:text-gray-200 mt-1">
+                      {Number(video.savedCount ?? 0)}
                     </span>
                   </button>
 
-                  {/* Comment */}
-                  <button className="flex flex-col items-center transition-transform hover:scale-110 active:scale-95 bg-white/80 dark:bg-gray-800/80 rounded-full p-3 shadow-lg">
+                  <button className="flex flex-col items-center bg-white/90 dark:bg-gray-800/80 rounded-full p-3 shadow-lg">
                     <MessageCircle size={28} className="text-pink-500" />
-                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 mt-1">
-                      {video.commentsCount ?? 0}
+                    <span className="text-xs font-semibold text-gray-800 dark:text-gray-200 mt-1">
+                      {Number(video.commentsCount ?? 0)}
                     </span>
                   </button>
                 </div>
 
-                {/* Bottom content */}
-                <div className="absolute bottom-8 left-0 w-full flex flex-col items-center z-20 px-4">
-                  {/* Description */}
-                  <div
-                    className={`w-full max-w-xs mx-auto ${theme.card} bg-opacity-70 rounded-xl p-4 mb-3 backdrop-blur-md shadow-xl`}
-                  >
-                    <p
-                      className={`text-base sm:text-lg font-medium text-center ${theme.text}`}
-                    >
+                {/* Bottom description + store */}
+                <div className="absolute bottom-6 left-0 w-full flex flex-col items-center z-20 px-4">
+                  <div className="w-[60%] max-w-md mx-auto rounded-2xl p-3 mb-3 backdrop-blur-md bg-black/45 border border-white/8 text-white shadow-md">
+                    <p className="text-sm sm:text-base font-medium text-center">
                       {video.description}
                     </p>
                   </div>
-
-                  {/* Store Button */}
                   {video.store && (
                     <Link
                       to={video.store}
                       rel="noopener noreferrer"
-                      className={`px-8 py-3 rounded-full font-bold text-lg ${theme.button} shadow-lg transition-transform hover:scale-105 active:scale-95`}
+                      className={`px-6 py-2 rounded-full font-semibold text-base ${theme.button} shadow-md`}
                     >
                       Visit Store
                     </Link>
@@ -213,8 +286,32 @@ const Reels = () => {
               </div>
             ))
           ) : (
-            <p className="text-white text-center mt-10">Loading videos...</p>
+            <p className="text-white text-center mt-10">No videos to show</p>
           )}
+        </div>
+
+        {/* Bottom toggle bar */}
+        <div className="fixed left-1/2 transform -translate-x-1/2 bottom-6 z-40 flex items-center gap-4 bg-white/90 dark:bg-gray-700/80 rounded-full px-3 py-1 shadow-lg">
+          <button
+            onClick={() => setView("all")}
+            className={`px-6 py-2 rounded-full font-semibold ${
+              view === "all"
+                ? "bg-black text-white"
+                : "text-black/70 dark:text-gray-200"
+            }`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setView("saved")}
+            className={`px-6 py-2 rounded-full font-semibold ${
+              view === "saved"
+                ? "bg-black text-white"
+                : "text-black/70 dark:text-gray-200"
+            }`}
+          >
+            Saved
+          </button>
         </div>
       </div>
     </div>

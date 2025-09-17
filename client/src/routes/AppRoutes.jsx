@@ -8,6 +8,7 @@ import Reels from "../pages/Reels";
 import CreateFood from "../pages/CreateFood";
 import LandingPage from "../pages/LandingPage";
 import PartnerProfile from "../pages/PartnerProfile";
+import Saved from "../pages/Saved";
 
 const AppRoutes = () => {
   return (
