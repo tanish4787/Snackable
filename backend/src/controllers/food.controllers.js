@@ -63,6 +63,7 @@ export const getAllFoodItems = async (req, res) => {
     );
 
     const videos = foodItems.map((item) => ({
+      _id: item._id,
       url: item.videoUrl,
       description: `${item.name} - ${item.description}`,
       store: `/food/food-partner/${item.foodPartner?._id}`,
