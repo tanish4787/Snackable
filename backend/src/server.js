@@ -13,7 +13,6 @@ const allowedOrigins = [
   "https://snackable-tau.vercel.app",
 ];
 app.use(cors({ origin: allowedOrigins, credentials: true }));
-app.options("/*", cors({ origin: allowedOrigins, credentials: true }));
 
 // Parsers
 app.use(cookieParser());
