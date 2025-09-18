@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 
 export const registerUser = async (req, res) => {
   try {
-    const {username, email, password } = req.body;
+    const { username, email, password } = req.body;
     if (!username || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -32,13 +32,14 @@ export const registerUser = async (req, res) => {
     );
 
     res
-     .cookie("token", token, {
-  httpOnly: true,       // Protects from XSS
-  secure: true,         // Required on HTTPS (Render & Vercel use HTTPS)
-  sameSite: "none",     // Required for cross-origin cookies
-  path: "/",            // Default path
-  maxAge: 7 * 24 * 60 * 60 * 1000, // Optional: 7 days
-}).status(201)
+      .cookie("token", token, {
+        httpOnly: true, // Protects from XSS
+        secure: true, // Required on HTTPS (Render & Vercel use HTTPS)
+        sameSite: "none", // Required for cross-origin cookies
+        path: "/", // Default path
+        maxAge: 7 * 24 * 60 * 60 * 1000, // Optional: 7 days
+      })
+      .status(201)
       .json({
         message: "User registered successfully",
         user: {
@@ -78,13 +79,13 @@ export const loginUser = async (req, res) => {
     );
 
     res
-     .cookie("token", token, {
-  httpOnly: true,       // Protects from XSS
-  secure: true,         // Required on HTTPS (Render & Vercel use HTTPS)
-  sameSite: "none",     // Required for cross-origin cookies
-  path: "/",            // Default path
-  maxAge: 7 * 24 * 60 * 60 * 1000, // Optional: 7 days
-})
+      .cookie("token", token, {
+        httpOnly: true, // Protects from XSS
+        secure: true, // Required on HTTPS (Render & Vercel use HTTPS)
+        sameSite: "none", // Required for cross-origin cookies
+        path: "/", // Default path
+        maxAge: 7 * 24 * 60 * 60 * 1000, // Optional: 7 days
+      })
       .status(201)
       .json({
         message: "User logged in successfully",
@@ -138,13 +139,13 @@ export const registerFoodPartner = async (req, res) => {
       process.env.JWT_SECRET
     );
     res
-     .cookie("token", token, {
-  httpOnly: true,       // Protects from XSS
-  secure: true,         // Required on HTTPS (Render & Vercel use HTTPS)
-  sameSite: "none",     // Required for cross-origin cookies
-  path: "/",            // Default path
-  maxAge: 7 * 24 * 60 * 60 * 1000, // Optional: 7 days
-})
+      .cookie("token", token, {
+        httpOnly: true, // Protects from XSS
+        secure: true, // Required on HTTPS (Render & Vercel use HTTPS)
+        sameSite: "none", // Required for cross-origin cookies
+        path: "/", // Default path
+        maxAge: 7 * 24 * 60 * 60 * 1000, // Optional: 7 days
+      })
       .status(201)
       .json({
         message: "Food partner registered successfully",
@@ -172,7 +173,7 @@ export const loginFoodPartner = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    const isPasswordValid =  await bcrypt.compare(password, partner.password);
+    const isPasswordValid = await bcrypt.compare(password, partner.password);
     if (!isPasswordValid) {
       return res.status(400).json({ message: "Invalid credentials" });
     }
@@ -184,13 +185,13 @@ export const loginFoodPartner = async (req, res) => {
       process.env.JWT_SECRET
     );
     res
-     .cookie("token", token, {
-  httpOnly: true,       // Protects from XSS
-  secure: true,         // Required on HTTPS (Render & Vercel use HTTPS)
-  sameSite: "none",     // Required for cross-origin cookies
-  path: "/",            // Default path
-  maxAge: 7 * 24 * 60 * 60 * 1000, // Optional: 7 days
-})
+      .cookie("token", token, {
+        httpOnly: true, // Protects from XSS
+        secure: true, // Required on HTTPS (Render & Vercel use HTTPS)
+        sameSite: "none", // Required for cross-origin cookies
+        path: "/", // Default path
+        maxAge: 7 * 24 * 60 * 60 * 1000, // Optional: 7 days
+      })
       .status(201)
       .json({
         message: "Food partner logged in successfully",

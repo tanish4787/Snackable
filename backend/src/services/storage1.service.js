@@ -15,11 +15,19 @@ export const uploadFileOnCloudinary = async (localFilePath) => {
       resource_type: "auto",
     });
 
-    fs.unlinkSync(localFilePath);
+    fs.unlink(localFilePath, (err) => {
+      if (err) console.error("Error deleting local file:", err);
+    });
 
-    return result;
+    return {
+      url: result.secure_url,
+      public_id: result.public_id,
+      resource_type: result.resource_type,
+    };
   } catch (error) {
-    fs.unlinkSync(localFilePath);
+    if (fs.existsSync(localFilePath)) {
+      fs.unlinkSync(localFilePath);
+    }
     console.error("Error uploading file to Cloudinary:", error);
     throw error;
   }
