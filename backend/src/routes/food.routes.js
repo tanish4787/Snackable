@@ -14,10 +14,13 @@ import { upload } from "../middlewares/multer.middleware.js";
 
 const router = express.Router();
 
+// Food Partner routes
 router.post("/", verifyFoodPartner, upload.single("video"), createFood);
-router.get("/", verifyFoodPartner, getAllFoodItems);
 router.get("/food-partner/:id", getFoodPartnerFoodById);
-router.post("/like", verifyFoodPartner, likeFoodItem);
-router.post("/save", verifyFoodPartner, saveFoodItem);
+
+// User routes
+router.get("/", getAllFoodItems);
+router.post("/like", verifyUser, likeFoodItem);
+router.post("/save", verifyUser, saveFoodItem);
 
 export default router;
